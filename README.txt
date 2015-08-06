@@ -2,6 +2,12 @@
 chan_dongle channel driver for Huawei UMTS cards
 --------------------------------------------------
 
+Ubuntu Instalation
+
+apt-get install -y build-essentials linux-headers-generic automake asterisk asterisk-dev
+cd asterisk-chan-dongle # and follow the instructions from INSTALL
+optionally add the files from the "extra" folder to your system and configure them for your modem
+
 WARNING:
 
 This channel driver is in alpha stage.

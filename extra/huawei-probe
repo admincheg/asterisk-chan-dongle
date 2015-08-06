@@ -1,0 +1,12 @@
+#!/bin/sh
+
+VID="$1"; shift
+PID="$1"; shift
+PATH=/sbin:/usr/sbin:$PATH
+
+modprobe -r option
+modprobe -r pl2303
+modprobe -a option
+
+sleep 1
+echo "0x$VID 0x$PID" > /sys/bus/usb-serial/drivers/option1/new_id
