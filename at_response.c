@@ -1354,8 +1354,10 @@ static int at_response_cusd (struct pvt * pvt, char * str, size_t len)
 	typebuf[1] = 0;
 
 	// FIXME: strictly check USSD encoding and detect encoding
-	if ((dcs == 0 || dcs == 15) && !pvt->cusd_use_ucs2_decoding)
+	if ((dcs == 0 || dcs == 15) && !pvt->cusd_use_ucs2_decoding && !pvt->cusd_use_8bit_decoding)
 		ussd_encoding = STR_ENCODING_7BIT_HEX;
+	else if (dcs == 68 && pvt->cusd_use_8bit_decoding)
+		ussd_encoding = STR_ENCODING_8BIT_HEX;
 	else
 		ussd_encoding = STR_ENCODING_UCS2_HEX;
 	res = str_recode (RECODE_DECODE, ussd_encoding, cusd, strlen (cusd), cusd_utf8_str, sizeof (cusd_utf8_str));
@@ -1597,17 +1599,34 @@ static int at_response_cgmm (struct pvt* pvt, const char* str)
 		"E171",
 		"E153",
 		"E156B",
+		"E1752",
+	};
+
+	static const char * const eight_bit_modems[] = {
+		"E3131",
 	};
 
 	ast_copy_string (pvt->model, str, sizeof (pvt->model));
 
 	pvt->cusd_use_7bit_encoding = 0;
+	pvt->cusd_use_8bit_decoding = 0;
 	pvt->cusd_use_ucs2_decoding = 1;
 	for(i = 0; i < ITEMS_OF(seven_bit_modems); ++i)
 	{
 		if(!strcmp (pvt->model, seven_bit_modems[i]))
 		{
 			pvt->cusd_use_7bit_encoding = 1;
+			pvt->cusd_use_ucs2_decoding = 0;
+			break;
+		}
+	}
+
+	for(i = 0; i < ITEMS_OF(eight_bit_modems); ++i)
+	{
+		if(!strcmp (pvt->model, eight_bit_modems[i]))
+		{
+			pvt->cusd_use_7bit_encoding = 1;
+			pvt->cusd_use_8bit_decoding = 1;
 			pvt->cusd_use_ucs2_decoding = 0;
 			break;
 		}

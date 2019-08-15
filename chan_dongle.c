@@ -297,6 +297,7 @@ static void disconnect_dongle (struct pvt* pvt)
 		/* unaffected in case of restart */
 		pvt->use_ucs2_encoding = 0;
 		pvt->cusd_use_7bit_encoding = 0;
+		pvt->cusd_use_8bit_decoding = 0;
 		pvt->cusd_use_ucs2_decoding = 1;
 		pvt->gsm_reg_status = -1;
 		pvt->rssi = 0;

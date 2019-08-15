@@ -114,8 +114,8 @@ EXPORT_DEF int at_read_result_iov (const char * dev, int * read_result, struct r
 	s = rb_used (rb);
 	if (s > 0)
 	{
-/*		ast_debug (5, "[%s] d_read_result %d len %d input [%.*s]\n", dev, *read_result, s, MIN(s, rb->size - rb->read), (char*)rb->buffer + rb->read);
-*/
+		ast_debug (5, "[%s] d_read_result %d len %d input [%.*s]\n", dev, *read_result, s, MIN(s, rb->size - rb->read), (char*)rb->buffer + rb->read);
+
 
 		if (*read_result == 0)
 		{
@@ -171,7 +171,7 @@ EXPORT_DEF int at_read_result_iov (const char * dev, int * read_result, struct r
 				*read_result = 0;
 				return rb_read_n_iov (rb, iov, 2);
 			}
-			else if (rb_memcmp (rb, "+CMGR:", 6) == 0 || rb_memcmp (rb, "+CNUM:", 6) == 0 || rb_memcmp (rb, "ERROR+CNUM:", 11) == 0 || rb_memcmp (rb, "+CLCC:", 6) == 0)
+			else if (rb_memcmp (rb, "+CMGR:", 6) == 0 || rb_memcmp (rb, "+CNUM:", 6) == 0 || rb_memcmp (rb, "ERROR+CNUM:", 11) == 0 || rb_memcmp (rb, "+CLCC:", 6) == 0 || rb_memcmp (rb, "+CSQ:", 5) == 0)
 			{
 				iovcnt = rb_read_until_mem_iov (rb, iov, "\n\r\nOK\r\n", 7);
 				if (iovcnt > 0)

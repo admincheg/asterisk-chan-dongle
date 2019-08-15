@@ -182,6 +182,7 @@
 */
 
 #define NUMBER_TYPE_INTERNATIONAL		0x91
+#define NUMBER_TYPE_TEXT			0xD0
 
 /* Message Type Indicator Parameter */
 #define PDUTYPE_MTI_SHIFT			0
@@ -438,7 +439,7 @@ failed parse 07 91  97 30 07 11 11 F1  04  14 D0 D9B09B5CC637DFEE721E00081170206
                                               ^^  not a international format
 */
 #/* reverse of pdu_store_number() */
-static int pdu_parse_number(char ** pdu, size_t * pdu_length, unsigned digits, int * toa, char * number, size_t num_len)
+static int pdu_parse_number(char ** pdu, size_t * pdu_length, unsigned digits, int * toa, char * number, size_t num_len, str_encoding_t * oa_enc)
 {
 	const char * begin;
 
@@ -449,28 +450,43 @@ static int pdu_parse_number(char ** pdu, size_t * pdu_length, unsigned digits, i
 	*toa = pdu_parse_byte(pdu, pdu_length);
 	if(*toa >= 0)
 	{
-		unsigned syms = ROUND_UP2(digits);
-		if(syms <= *pdu_length)
-		{
-			signed char digit;
-			if(*toa == NUMBER_TYPE_INTERNATIONAL)
-				*number++ = '+';
-			for(; syms > 0; syms -= 2, *pdu += 2, *pdu_length -= 2)
-			{
-				digit = pdu_code2digit(pdu[0][1]);
-				if(digit <= 0)
-					return -1;
-				*number++ = digit;
+		if (*toa == NUMBER_TYPE_TEXT) {
+			int len = ROUND_UP2(digits);
+			strncpy(number, *pdu, len);
+			number[len] = '\0';
+			*pdu += len;
+			*pdu_length -= len;
+			*oa_enc = STR_ENCODING_7BIT_HEX;
 
-				digit = pdu_code2digit(pdu[0][0]);
-				if(digit < 0 || (digit == 0 && (syms != 2 || (digits & 0x1) == 0)))
-					return -1;
-
-				*number++ = digit;
-			}
-			if((digits & 0x1) == 0)
-				*number = 0;
 			return *pdu - begin;
+		}
+		else
+		{
+
+			unsigned syms = ROUND_UP2(digits);
+			if(syms <= *pdu_length)
+			{
+				signed char digit;
+				if(*toa == NUMBER_TYPE_INTERNATIONAL)
+					*number++ = '+';
+				for(; syms > 0; syms -= 2, *pdu += 2, *pdu_length -= 2)
+				{
+					digit = pdu_code2digit(pdu[0][1]);
+					if(digit <= 0)
+						return -1;
+					*number++ = digit;
+
+					digit = pdu_code2digit(pdu[0][0]);
+					if(digit < 0 || (digit == 0 && (syms != 2 || (digits & 0x1) == 0)))
+						return -1;
+
+					*number++ = digit;
+				}
+				if((digits & 0x1) == 0)
+					*number = 0;
+				*oa_enc = STR_ENCODING_7BIT;
+				return *pdu - begin;
+			}
 		}
 	}
 
@@ -685,11 +701,11 @@ EXPORT_DEF const char * pdu_parse(char ** pdu, size_t tpdu_length, char * oa, si
 				if(oa_digits > 0)
 				{
 					int oa_toa;
-					field_len = pdu_parse_number(pdu, &pdu_length, oa_digits, &oa_toa, oa, oa_len);
+					field_len = pdu_parse_number(pdu, &pdu_length, oa_digits, &oa_toa, oa, oa_len, oa_enc);
+					printf("%s\n", *pdu);
 					if(field_len > 0)
 					{
 						int pid = pdu_parse_byte(pdu, &pdu_length);
-						*oa_enc = STR_ENCODING_7BIT;
 						if(pid >= 0)
 						{
 						   /* TODO: support other types of messages */

@@ -139,6 +139,7 @@ typedef struct pvt
 	/* device caps */
 	unsigned int		use_ucs2_encoding:1;
 	unsigned int		cusd_use_7bit_encoding:1;
+	unsigned int		cusd_use_8bit_decoding:1;
 	unsigned int		cusd_use_ucs2_decoding:1;
 
 	/* device state */

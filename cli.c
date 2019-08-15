@@ -218,6 +218,7 @@ static char* cli_show_device_state (struct ast_cli_entry* e, int cmd, struct ast
 		ast_cli (a->fd, "  SMS Service Center      : %s\n", pvt->sms_scenter);
 		ast_cli (a->fd, "  Use UCS-2 encoding      : %s\n", pvt->use_ucs2_encoding ? "Yes" : "No");
 		ast_cli (a->fd, "  USSD use 7 bit encoding : %s\n", pvt->cusd_use_7bit_encoding ? "Yes" : "No");
+		ast_cli (a->fd, "  USSD use 8 bit decoding : %s\n", pvt->cusd_use_8bit_decoding ? "Yes" : "No");
 		ast_cli (a->fd, "  USSD use UCS-2 decoding : %s\n", pvt->cusd_use_ucs2_decoding ? "Yes" : "No");
 		ast_cli (a->fd, "  Tasks in queue          : %u\n", PVT_STATE(pvt, at_tasks));
 		ast_cli (a->fd, "  Commands in queue       : %u\n", PVT_STATE(pvt, at_cmds));
